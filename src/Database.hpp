@@ -10,6 +10,10 @@ template <class T>
 class Database {
   public:
     Database(string, string);
+    void insert(T);
+    T select(T);
+    void update(T);
+    void remove(T);
 
   private:
     fstream dataFile;

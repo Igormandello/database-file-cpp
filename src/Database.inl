@@ -16,3 +16,27 @@ Database<T>::Database(string dataFile, string treeFile) {
     this->treeFile.open(treeFile, ios::out | ios::in | ios::binary);
   } 
 }
+
+template <class T>
+void Database<T>::insert(T data) {
+
+
+}
+
+template <class T>
+T Database<T>::select(T data) {
+
+
+}
+
+template <class T>
+void Database<T>::update(T data) {
+
+
+}
+
+template <class T>
+void Database<T>::remove(T data) {
+
+
+}
