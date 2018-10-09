@@ -35,11 +35,14 @@ void Database<T>::insert(T data) {
 
 template <class T>
 T Database<T>::select(T data) {
-  char* read = new char[sizeof(data)];
-  this->dataFile.read(read, sizeof(data));
+  this->dataFile.seekg(0, this->dataFile.beg);
+  this->treeFile.seekg(0, this->treeFile.beg);
+
+  char* read = new char[sizeof(T)];
+  this->dataFile.read(read, sizeof(T));
 
   T tmp;
-  memcpy(&tmp, read, sizeof(data));
+  memcpy(&tmp, read, sizeof(T));
 
   return tmp;
 }
