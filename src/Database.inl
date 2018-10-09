@@ -2,20 +2,22 @@
 
 template <class T>
 Database<T>::Database(string dataFile, string treeFile) {
-  this->dataFile.open(dataFile, ios::out | ios::in | ios::binary | ios::app);
+  const char* dataFileChr = dataFile.c_str();
+  this->dataFile.open(dataFileChr, ios::out | ios::in | ios::binary | ios::app);
   if (!this->dataFile.is_open()) {
-    this->dataFile.open(dataFile, ios::out);
+    this->dataFile.open(dataFileChr, ios::out);
     this->dataFile.close();
 
-    this->dataFile.open(dataFile, ios::out | ios::in | ios::binary | ios::app);
+    this->dataFile.open(dataFileChr, ios::out | ios::in | ios::binary | ios::app);
   } 
 
-  this->treeFile.open(treeFile, ios::out | ios::in | ios::binary);
+  const char* treeFileChr = treeFile.c_str();
+  this->treeFile.open(treeFileChr, ios::out | ios::in | ios::binary);
   if (!this->treeFile.is_open()) {
-    this->treeFile.open(treeFile, ios::out);
+    this->treeFile.open(treeFileChr, ios::out);
     this->treeFile.close();
 
-    this->treeFile.open(treeFile, ios::out | ios::in | ios::binary);
+    this->treeFile.open(treeFileChr, ios::out | ios::in | ios::binary);
   } 
 }
 
