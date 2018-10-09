@@ -21,8 +21,16 @@ Database<T>::Database(string dataFile, string treeFile) {
 
 template <class T>
 void Database<T>::insert(T data) {
+  this->dataFile.seekg(0, this->dataFile.end);
+  this->treeFile.seekg(0, this->treeFile.end);
+
   char* bytes = reinterpret_cast<char*>(&data);
-  this->dataFile.write(bytes, sizeof(data));
+  this->dataFile.write(bytes, sizeof(T));
+
+  int amount = this->dataFile.tellg() / sizeof(T);
+  Node n(amount - 1);
+  bytes = reinterpret_cast<char*>(&n);
+  this->treeFile.write(bytes, sizeof(Node));
 }
 
 template <class T>

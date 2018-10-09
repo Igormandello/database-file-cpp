@@ -35,7 +35,9 @@ int main() {
 
   Student s (16179, 17);
   d.insert(s);
-  cout << d.select(Student(16179));
+  //cout << d.select(Student(16179));
+
+  d.print(cout);
 
   return 0;
 }
