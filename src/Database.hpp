@@ -2,6 +2,7 @@
 #define DATABASE_INCLUDED
 
 #include <iostream>
+#include "Node.hpp"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ class Database {
     T select(T);
     void update(T);
     void remove(T);
+    void print(ostream&);
 
   private:
     fstream dataFile;
