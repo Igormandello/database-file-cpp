@@ -2,7 +2,6 @@
 #define DATABASE_INCLUDED
 
 #include <iostream>
-#include <string>
 
 using namespace std;
 

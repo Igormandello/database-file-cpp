@@ -1,57 +1,41 @@
 #include <iostream>
 #include <fstream>
+#include <string.h>
 #include "Database.hpp"
 
 using namespace std;
 
 struct Student {
   int ra;
-  string name;
+  int age;
 
-  Student(int ra, string name) {
+  Student(int ra, int age) {
     this->ra = ra;
-    this->name = name;
+    this->age = age;
   }
 
   Student(int ra) {
     this->ra = ra;
-    this->name = "";
+    this->age = 0;
   }
 
   Student() {
     this->ra = 0;
-    this->name = "";
-  }
-
-  void swap(Student& other) {
-    std::swap(this->ra, other.ra);
-    std::swap(this->name, other.name);
+    this->age = 0;
   }
 
   friend ostream& operator<<(ostream& os, const Student& s) {
-    os << s.ra << " " 
-      << s.name.size() << ":" 
-      << s.name;
+    os << "{ ra: " << s.ra << ", age: " << s.age << " }";
     return os;
-  }
-
-  friend istream& operator>>(istream& is, Student& s) {
-    Student tmp;
-    size_t size;
-    if (is >> tmp.ra >> size) {
-        tmp.name.resize(size);
-
-        is.ignore(1); //Ignore the ':' char
-        if (is.read(&tmp.name[0], size))
-          s.swap(tmp);
-    }
-
-    return is;
   }
 };
 
 int main() {
   Database<Student> d ("data.dat", "tree.dat");
+
+  Student s (16179, 17);
+  d.insert(s);
+  cout << d.select(Student(16179));
 
   return 0;
 }
