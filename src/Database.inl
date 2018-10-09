@@ -23,10 +23,8 @@ Database<T>::Database(string dataFile, string treeFile) {
 
 template <class T>
 void Database<T>::insert(T data) {
-  stringstream dataStream;
-  dataStream << data;
-
-  this->dataFile.write(dataStream.str().c_str(), sizeof(data));
+  char* bytes = reinterpret_cast<char*>(&data);
+  this->dataFile.write(bytes, sizeof(data));
 }
 
 template <class T>
