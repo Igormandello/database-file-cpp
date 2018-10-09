@@ -29,8 +29,13 @@ void Database<T>::insert(T data) {
 
 template <class T>
 T Database<T>::select(T data) {
+  char* read = new char[sizeof(data)];
+  this->dataFile.read(read, sizeof(data));
 
+  T tmp;
+  memcpy(&tmp, read, sizeof(data));
 
+  return tmp;
 }
 
 template <class T>
