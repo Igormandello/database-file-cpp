@@ -9,7 +9,7 @@ using namespace std;
 template <class T>
 class Database {
   public:
-    Database(string, string);
+    Database(string, string, T);
     void insert(T);
     T select(T);
     void update(T);
@@ -19,6 +19,7 @@ class Database {
   private:
     fstream dataFile;
     fstream treeFile;
+    T* defaultValue;
 };
 
 #include "Database.inl"

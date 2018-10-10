@@ -1,7 +1,7 @@
 #include <stdexcept>
 
 template <class T>
-Database<T>::Database(string dataFile, string treeFile) {
+Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
   const char* dataFileChr = dataFile.c_str();
   this->dataFile.open(dataFileChr, ios::out | ios::in | ios::binary);
   if (!this->dataFile.is_open()) {
@@ -19,6 +19,8 @@ Database<T>::Database(string dataFile, string treeFile) {
 
     this->treeFile.open(treeFileChr, ios::out | ios::in | ios::binary);
   } 
+
+  this->defaultValue = new T(defaultValue);
 }
 
 template <class T>
@@ -76,16 +78,34 @@ void Database<T>::insert(T data) {
 
 template <class T>
 T Database<T>::select(T data) {
-  this->dataFile.seekg(0, this->dataFile.beg);
-  this->treeFile.seekg(0, this->treeFile.beg);
+  this->treeFile.seekg(0, this->treeFile.end);
 
-  char* read = new char[sizeof(T)];
-  this->dataFile.read(read, sizeof(T));
+  int next = 0;
+  if (this->treeFile.tellg() > 0) {
+    T tmp;
+    Node current;
+    char* tBytes = new char[sizeof(T)];
+    char* nodeBytes = new char[sizeof(Node)];
+    
+    while (next != -1) {
+      this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+      this->treeFile.read(nodeBytes, sizeof(Node));
+      memcpy(&current, nodeBytes, sizeof(Node));
 
-  T tmp;
-  memcpy(&tmp, read, sizeof(T));
+      this->dataFile.seekg(current.data * sizeof(T), this->dataFile.beg);
+      this->dataFile.read(tBytes, sizeof(T));
+      memcpy(&tmp, tBytes, sizeof(T));
+      
+      if (data > tmp)
+          next = current.right;
+      else if (data < tmp)
+          next = current.left;
+      else
+        return tmp;
+    }
+  }
 
-  return tmp;
+  return T(*this->defaultValue);
 }
 
 template <class T>
