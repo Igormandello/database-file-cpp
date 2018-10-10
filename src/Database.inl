@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 template <class T>
 Database<T>::Database(string dataFile, string treeFile) {
   const char* dataFileChr = dataFile.c_str();
@@ -29,6 +31,45 @@ void Database<T>::insert(T data) {
 
   int amount = this->dataFile.tellg() / sizeof(T);
   Node n(amount - 1);
+
+  int next = 0;
+  if (this->treeFile.tellg() > 0) {
+    T tmp;
+    Node current;
+    char* tBytes = new char[sizeof(T)];
+    char* nodeBytes = new char[sizeof(Node)];
+    
+    while (next != -1) {
+      this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+      this->treeFile.read(nodeBytes, sizeof(Node));
+      memcpy(&current, nodeBytes, sizeof(Node));
+
+      this->dataFile.seekg(current.data * sizeof(T), this->dataFile.beg);
+      this->dataFile.read(tBytes, sizeof(T));
+      memcpy(&tmp, tBytes, sizeof(T));
+      
+      if (data > tmp)
+        if (current.right == -1) {
+          current.right = amount - 1;
+          break;
+        } else
+          next = current.right;
+      else if (data < tmp)
+        if (current.left == -1) {
+          current.left = amount - 1;
+          break;
+        } else
+          next = current.left;
+      else
+        throw invalid_argument("Data already exists");
+    }
+
+    this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+    bytes = reinterpret_cast<char*>(&current);
+    this->treeFile.write(bytes, sizeof(Node));
+  }
+
+  this->treeFile.seekg(0, this->treeFile.end);
   bytes = reinterpret_cast<char*>(&n);
   this->treeFile.write(bytes, sizeof(Node));
 }

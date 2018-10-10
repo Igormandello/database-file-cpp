@@ -28,16 +28,24 @@ struct Student {
     os << "{ ra: " << s.ra << ", age: " << s.age << " }";
     return os;
   }
+
+  bool operator<(const Student& s2) {
+    return this->ra < s2.ra;
+  }
+
+  bool operator>(const Student& s2) {
+    return this->ra > s2.ra;
+  }
 };
 
 int main() {
   Database<Student> d ("data.dat", "tree.dat");
 
-  Student s (16179, 17);
-  d.insert(s);
+  d.insert(Student(16177, 17));
+  d.insert(Student(16180, 17));
+  d.insert(Student(16178, 17));
   //cout << d.select(Student(16179));
 
   d.print(cout);
-
   return 0;
 }
