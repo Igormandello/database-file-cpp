@@ -39,12 +39,17 @@ struct Student {
 };
 
 int main() {
+  Database<Student> d ("data.dat", "tree.dat", Student(-1));
+  
   d.insert(Student(16177, 17));
   d.insert(Student(16180, 17));
   d.insert(Student(16178, 17));
-  Database<Student> d ("data.dat", "tree.dat", Student(-1));
 
   cout << d.select(Student(16179)) << endl;
+  cout << d.select(Student(16178)) << endl;
+
+  d.update(Student(16178, 19));
+  cout << d.select(Student(16178)) << endl;
 
   d.print(cout);
   return 0;

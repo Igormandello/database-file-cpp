@@ -110,8 +110,37 @@ T Database<T>::select(T data) {
 
 template <class T>
 void Database<T>::update(T data) {
+  this->treeFile.seekg(0, this->treeFile.end);
 
+  int next = 0;
+  if (this->treeFile.tellg() > 0) {
+    T tmp;
+    Node current;
+    char* tBytes = new char[sizeof(T)];
+    char* nodeBytes = new char[sizeof(Node)];
+    
+    while (next != -1) {
+      this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+      this->treeFile.read(nodeBytes, sizeof(Node));
+      memcpy(&current, nodeBytes, sizeof(Node));
 
+      this->dataFile.seekg(current.data * sizeof(T), this->dataFile.beg);
+      this->dataFile.read(tBytes, sizeof(T));
+      memcpy(&tmp, tBytes, sizeof(T));
+      
+      if (data > tmp)
+          next = current.right;
+      else if (data < tmp)
+          next = current.left;
+      else {
+        this->dataFile.seekg(current.data * sizeof(T), this->dataFile.beg);
+
+        tBytes = reinterpret_cast<char*>(&data);
+        this->dataFile.write(tBytes, sizeof(T));
+        break;
+      }
+    }
+  }
 }
 
 template <class T>
