@@ -373,6 +373,50 @@ void Database<T>::remove(T data) {
 }
 
 template <class T>
+void Database<T>::readNode(Node& node, int nodeIndex) {
+  char* nodeBytes = new char[sizeof(Node)];
+
+  this->treeFile.seekg(nodeIndex * sizeof(Node), this->treeFile.beg);
+  this->treeFile.read(nodeBytes, sizeof(Node));
+  memcpy(&node, nodeBytes, sizeof(Node));
+
+  delete nodeBytes;
+}
+
+template <class T>
+void Database<T>::writeNode(Node& node, int nodeIndex) {
+  char* bytes = new char[sizeof(Node)];
+
+  bytes = reinterpret_cast<char*>(&node);
+  this->treeFile.seekg(nodeIndex * sizeof(Node), this->treeFile.beg);
+  this->treeFile.write(bytes, sizeof(Node));
+
+  delete bytes;
+}
+
+template <class T>
+void Database<T>::readData(T& data, int dataIndex) {
+  char* dataBytes = new char[sizeof(T)];
+
+  this->dataFile.seekg(dataIndex * sizeof(T), this->dataFile.beg);
+  this->dataFile.read(dataBytes, sizeof(T));
+  memcpy(&data, dataBytes, sizeof(T));
+
+  delete dataBytes;
+}
+
+template <class T>
+void Database<T>::writeData(T& data, int dataIndex) {
+  char* bytes = new char[sizeof(T)];
+
+  bytes = reinterpret_cast<char*>(&data);
+  this->dataFile.seekg(dataIndex * sizeof(T), this->dataFile.beg);
+  this->dataFile.write(bytes, sizeof(T));
+
+  delete bytes;
+}
+
+template <class T>
 void Database<T>::removeBytes(fstream& file, const char* filename, int firstBytes, int skip) {
   file.seekg(0, file.end);
   int fileSize = file.tellg();

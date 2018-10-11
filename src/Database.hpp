@@ -24,6 +24,10 @@ class Database {
     const char* treeName;
     T* defaultValue;
 
+    void readNode(Node&, int);
+    void writeNode(Node&, int);
+    void readData(T&, int);
+    void writeData(T&, int);
     void removeBytes(fstream&, const char*, int, int);
 };
 
