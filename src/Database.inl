@@ -3,7 +3,7 @@
 template <class T>
 Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
   const char* dataFileChr = dataFile.c_str();
-  this->dataName = dataFileChr;
+  this->dataName = strdup(dataFileChr);
   this->dataFile.open(dataFileChr, ios::out | ios::in | ios::binary);
   if (!this->dataFile.is_open()) {
     this->dataFile.open(dataFileChr, ios::out);
@@ -13,7 +13,7 @@ Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
   } 
 
   const char* treeFileChr = treeFile.c_str();
-  this->treeName = treeFileChr;
+  this->treeName = strdup(treeFileChr);
   this->treeFile.open(treeFileChr, ios::out | ios::in | ios::binary);
   if (!this->treeFile.is_open()) {
     this->treeFile.open(treeFileChr, ios::out);
@@ -23,6 +23,14 @@ Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
   } 
 
   this->defaultValue = new T(defaultValue);
+}
+
+template <class T>
+Database<T>::~Database() {
+  this->dataFile.close();
+  this->treeFile.close();
+  delete this->dataName;
+  delete this->treeName;
 }
 
 template <class T>

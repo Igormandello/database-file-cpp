@@ -56,5 +56,9 @@ int main() {
 
   cout << endl;
   d.print(cout);
+
+  d.~Database();
+  remove("data.dat");
+  remove("tree.dat");
   return 0;
 }

@@ -10,6 +10,7 @@ template <class T>
 class Database {
   public:
     Database(string, string, T);
+    ~Database();
     void insert(T);
     T select(T);
     void update(T);
