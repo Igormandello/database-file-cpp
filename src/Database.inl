@@ -232,6 +232,140 @@ void Database<T>::remove(T data) {
           }
 
           break;
+        } else if (current.right == -1) {
+          int prevBig = next;
+          int nextBig = current.left;
+
+          Node biggest;
+          this->treeFile.seekg(nextBig * sizeof(Node), this->treeFile.beg);
+          this->treeFile.read(nodeBytes, sizeof(Node));
+          memcpy(&biggest, nodeBytes, sizeof(Node));
+          
+          while (biggest.right != -1) {
+            prevBig = nextBig;
+            nextBig = biggest.right;
+
+            this->treeFile.seekg(nextBig * sizeof(Node), this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&biggest, nodeBytes, sizeof(Node));
+          }
+
+          this->treeFile.seekg(nextBig * sizeof(Node), this->treeFile.beg);
+          this->treeFile.read(nodeBytes, sizeof(Node));
+          memcpy(&biggest, nodeBytes, sizeof(Node));
+
+          int removedData = current.data;
+          current.data = biggest.data;
+
+          if (prevBig == next)
+            current.left = -1;
+          else {
+            Node biggestPrev;
+            this->treeFile.seekg(prevBig * sizeof(Node), this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&biggestPrev, nodeBytes, sizeof(Node));
+
+            biggestPrev.right = -1;
+
+            nodeBytes = reinterpret_cast<char*>(&biggestPrev);
+            this->treeFile.seekg(prevBig * sizeof(Node), this->treeFile.beg);
+            this->treeFile.write(nodeBytes, sizeof(Node));
+          }
+
+          nodeBytes = reinterpret_cast<char*>(&current);
+          this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+          this->treeFile.write(nodeBytes, sizeof(Node));
+
+          this->removeBytes(this->treeFile, this->treeName, nextBig * sizeof(Node), sizeof(Node));
+          this->removeBytes(this->dataFile, this->dataName, removedData * sizeof(T), sizeof(T));
+
+          this->treeFile.seekg(0, this->treeFile.end);
+          int last = this->treeFile.tellg();
+          for (int i = 0; i < last; i += sizeof(Node)) {
+            this->treeFile.seekg(i, this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&current, nodeBytes, sizeof(Node));
+
+            if (current.right > next)
+              current.right--;
+            
+            if (current.left > next)
+              current.left--;
+
+            if (current.data > removedData)
+              current.data--;
+
+            nodeBytes = reinterpret_cast<char*>(&current);
+            this->treeFile.seekg(i, this->treeFile.beg);
+            this->treeFile.write(nodeBytes, sizeof(Node));
+          }
+        } else {
+          int prevSmall = next;
+          int nextSmall = current.right;
+
+          Node smallest;
+          this->treeFile.seekg(nextSmall * sizeof(Node), this->treeFile.beg);
+          this->treeFile.read(nodeBytes, sizeof(Node));
+          memcpy(&smallest, nodeBytes, sizeof(Node));
+          
+          while (smallest.left != -1) {
+            prevSmall = nextSmall;
+            nextSmall = smallest.left;
+
+            this->treeFile.seekg(nextSmall * sizeof(Node), this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&smallest, nodeBytes, sizeof(Node));
+          }
+
+          this->treeFile.seekg(nextSmall * sizeof(Node), this->treeFile.beg);
+          this->treeFile.read(nodeBytes, sizeof(Node));
+          memcpy(&smallest, nodeBytes, sizeof(Node));
+
+          int removedData = current.data;
+          current.data = smallest.data;
+
+          if (prevSmall == next)
+            current.right = -1;
+          else {
+            Node smallestPrev;
+            this->treeFile.seekg(prevSmall * sizeof(Node), this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&smallestPrev, nodeBytes, sizeof(Node));
+
+            smallestPrev.left = -1;
+
+            nodeBytes = reinterpret_cast<char*>(&smallestPrev);
+            this->treeFile.seekg(prevSmall * sizeof(Node), this->treeFile.beg);
+            this->treeFile.write(nodeBytes, sizeof(Node));
+          }
+
+          nodeBytes = reinterpret_cast<char*>(&current);
+          this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+          this->treeFile.write(nodeBytes, sizeof(Node));
+
+          this->removeBytes(this->treeFile, this->treeName, nextSmall * sizeof(Node), sizeof(Node));
+          this->removeBytes(this->dataFile, this->dataName, removedData * sizeof(T), sizeof(T));
+
+          this->treeFile.seekg(0, this->treeFile.end);
+          int last = this->treeFile.tellg();
+          for (int i = 0; i < last; i += sizeof(Node)) {
+            this->treeFile.seekg(i, this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&current, nodeBytes, sizeof(Node));
+
+            if (current.right > next)
+              current.right--;
+            
+            if (current.left > next)
+              current.left--;
+
+            if (current.data > removedData)
+              current.data--;
+
+            nodeBytes = reinterpret_cast<char*>(&current);
+            this->treeFile.seekg(i, this->treeFile.beg);
+            this->treeFile.write(nodeBytes, sizeof(Node));
+          }
         }
       }
     }

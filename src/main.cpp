@@ -43,7 +43,7 @@ int main() {
   
   d.insert(Student(16177, 17));
   d.insert(Student(16180, 17));
-  d.insert(Student(16178, 17));
+  d.insert(Student(16181, 17));
   d.insert(Student(16176, 17));
 
   cout << d.select(Student(16179)) << endl;
@@ -52,7 +52,7 @@ int main() {
   d.update(Student(16178, 19));
   cout << d.select(Student(16178)) << endl << endl;
   d.print(cout);
-  d.remove(Student(16178));
+  d.remove(Student(16180));
 
   cout << endl;
   d.print(cout);
