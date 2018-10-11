@@ -44,13 +44,17 @@ int main() {
   d.insert(Student(16177, 17));
   d.insert(Student(16180, 17));
   d.insert(Student(16178, 17));
+  d.insert(Student(16176, 17));
 
   cout << d.select(Student(16179)) << endl;
   cout << d.select(Student(16178)) << endl;
 
   d.update(Student(16178, 19));
-  cout << d.select(Student(16178)) << endl;
+  cout << d.select(Student(16178)) << endl << endl;
+  d.print(cout);
+  d.remove(Student(16178));
 
+  cout << endl;
   d.print(cout);
   return 0;
 }

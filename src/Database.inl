@@ -3,6 +3,7 @@
 template <class T>
 Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
   const char* dataFileChr = dataFile.c_str();
+  this->dataName = dataFileChr;
   this->dataFile.open(dataFileChr, ios::out | ios::in | ios::binary);
   if (!this->dataFile.is_open()) {
     this->dataFile.open(dataFileChr, ios::out);
@@ -12,6 +13,7 @@ Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
   } 
 
   const char* treeFileChr = treeFile.c_str();
+  this->treeName = treeFileChr;
   this->treeFile.open(treeFileChr, ios::out | ios::in | ios::binary);
   if (!this->treeFile.is_open()) {
     this->treeFile.open(treeFileChr, ios::out);
@@ -66,6 +68,9 @@ void Database<T>::insert(T data) {
         throw invalid_argument("Data already exists");
     }
 
+    delete tBytes;
+    delete nodeBytes;
+
     this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
     bytes = reinterpret_cast<char*>(&current);
     this->treeFile.write(bytes, sizeof(Node));
@@ -100,8 +105,12 @@ T Database<T>::select(T data) {
           next = current.right;
       else if (data < tmp)
           next = current.left;
-      else
+      else {
+        delete tBytes;
+        delete nodeBytes;
+
         return tmp;
+      }
     }
   }
 
@@ -145,8 +154,107 @@ void Database<T>::update(T data) {
 
 template <class T>
 void Database<T>::remove(T data) {
+  this->treeFile.seekg(0, this->treeFile.end);
 
+  int next = 0, prev = 0;
+  if (this->treeFile.tellg() > 0) {
+    T tmp;
+    Node current;
+    char* tBytes = new char[sizeof(T)];
+    char* nodeBytes = new char[sizeof(Node)];
+    
+    while (next != -1) {
+      this->treeFile.seekg(next * sizeof(Node), this->treeFile.beg);
+      this->treeFile.read(nodeBytes, sizeof(Node));
+      memcpy(&current, nodeBytes, sizeof(Node));
 
+      this->dataFile.seekg(current.data * sizeof(T), this->dataFile.beg);
+      this->dataFile.read(tBytes, sizeof(T));
+      memcpy(&tmp, tBytes, sizeof(T));
+      
+      if (data > tmp) {
+        prev = next;
+        next = current.right;
+      } else if (data < tmp) {
+        prev = next;
+        next = current.left;
+      } else {
+        if (current.left == -1 && current.right == -1) {
+          Node prevNode;
+          this->treeFile.seekg(prev * sizeof(Node), this->treeFile.beg);
+          this->treeFile.read(nodeBytes, sizeof(Node));
+          memcpy(&prevNode, nodeBytes, sizeof(Node));
+
+          this->dataFile.seekg(prevNode.data * sizeof(T), this->dataFile.beg);
+          this->dataFile.read(tBytes, sizeof(T));
+          memcpy(&tmp, tBytes, sizeof(T));
+
+          if (data > tmp)
+            prevNode.right = -1;
+          else
+            prevNode.left = -1;
+
+          nodeBytes = reinterpret_cast<char*>(&prevNode);
+          this->treeFile.seekg(prev * sizeof(Node), this->treeFile.beg);
+          this->treeFile.write(nodeBytes, sizeof(Node));
+
+          this->removeBytes(this->treeFile, this->treeName, next * sizeof(Node), sizeof(Node));
+          this->removeBytes(this->dataFile, this->dataName, current.data * sizeof(T), sizeof(T));
+
+          int removedData = current.data;
+          this->treeFile.seekg(0, this->treeFile.end);
+          int last = this->treeFile.tellg();
+          for (int i = 0; i < last; i += sizeof(Node)) {
+            this->treeFile.seekg(i, this->treeFile.beg);
+            this->treeFile.read(nodeBytes, sizeof(Node));
+            memcpy(&current, nodeBytes, sizeof(Node));
+
+            if (current.right > next)
+              current.right--;
+            
+            if (current.left > next)
+              current.left--;
+
+            if (current.data > removedData)
+              current.data--;
+
+            nodeBytes = reinterpret_cast<char*>(&current);
+            this->treeFile.seekg(i, this->treeFile.beg);
+            this->treeFile.write(nodeBytes, sizeof(Node));
+          }
+
+          break;
+        }
+      }
+    }
+  }
+}
+
+template <class T>
+void Database<T>::removeBytes(fstream& file, const char* filename, int firstBytes, int skip) {
+  file.seekg(0, file.end);
+  int fileSize = file.tellg();
+  int lastBytes = fileSize - firstBytes - skip;
+  //cout << fileSize << " " << firstBytes << " " << lastBytes << endl;
+
+  char* first = new char[firstBytes];
+  char* last = new char[lastBytes];
+
+  file.seekg(0, file.beg);
+  file.read(first, firstBytes);
+  file.seekg(-lastBytes, file.end);
+  file.read(last, lastBytes);
+  file.close();
+
+  file.open(filename, ios::out | ios::binary | ios::trunc);
+  file.write(first, firstBytes);
+  file.write(last, lastBytes);
+  file.close();
+
+  file.open(filename, ios::out | ios::in | ios::binary);
+
+  delete first;
+  delete last;
 }
 
 template <class T>

@@ -19,7 +19,11 @@ class Database {
   private:
     fstream dataFile;
     fstream treeFile;
+    const char* dataName;
+    const char* treeName;
     T* defaultValue;
+
+    void removeBytes(fstream&, const char*, int, int);
 };
 
 #include "Database.inl"
