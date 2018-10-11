@@ -47,11 +47,10 @@ int main() {
   d.insert(Student(16176, 17));
 
   cout << d.select(Student(16179)) << endl;
-  cout << d.select(Student(16178)) << endl;
+  cout << d.select(Student(16176)) << endl;
 
-  d.update(Student(16178, 19));
-  cout << d.select(Student(16178)) << endl << endl;
-  d.print(cout);
+  d.update(Student(16177, 19));
+  cout << d.select(Student(16177)) << endl << endl;
   d.remove(Student(16180));
 
   cout << endl;

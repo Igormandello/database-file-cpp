@@ -28,6 +28,7 @@ class Database {
     void writeNode(Node&, int);
     void readData(T&, int);
     void writeData(T&, int);
+    void fixIndexes(int, int);
     void removeBytes(fstream&, const char*, int, int);
 };
 
