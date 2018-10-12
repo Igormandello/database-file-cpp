@@ -287,7 +287,7 @@ void Database<T>::readNode(Node& node, int nodeIndex) {
 
   this->treeFile.seekg(nodeIndex * sizeof(Node), this->treeFile.beg);
   this->treeFile.read(nodeBytes, sizeof(Node));
-  memcpy(&node, nodeBytes, sizeof(Node));
+  node = *reinterpret_cast<Node*>(nodeBytes);
 
   delete nodeBytes;
 }
@@ -309,7 +309,7 @@ void Database<T>::readData(T& data, int dataIndex) {
 
   this->dataFile.seekg(dataIndex * sizeof(T), this->dataFile.beg);
   this->dataFile.read(dataBytes, sizeof(T));
-  memcpy(&data, dataBytes, sizeof(T));
+  data = *reinterpret_cast<T*>(dataBytes);
 
   delete dataBytes;
 }
