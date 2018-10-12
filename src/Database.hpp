@@ -24,8 +24,12 @@ class Database {
     const char* treeName;
     T* defaultValue;
 
-    void calculateFactor(int);
+    int calculateFactor(int);
     int calculateHeight(int);
+    void balance(int);
+
+    void leftRotation(int);
+    void rightRotation(int);
 
     void readNode(Node&, int);
     void writeNode(Node&, int);

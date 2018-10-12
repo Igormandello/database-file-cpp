@@ -81,7 +81,8 @@ void Database<T>::insert(T data) {
     int node = nodeStack.top();
     nodeStack.pop();
 
-    this->calculateFactor(node);
+    if (abs(this->calculateFactor(node)) > 1)
+      this->balance(node);
   }
 }
 
@@ -243,13 +244,14 @@ void Database<T>::remove(T data) {
       int node = nodeStack.top();
       nodeStack.pop();
 
-      this->calculateFactor(node);
+      if (abs(this->calculateFactor(node)) > 1)
+        this->balance(node);
     }
   }
 }
 
 template <class T>
-void Database<T>::calculateFactor(int nodeIndex) {
+int Database<T>::calculateFactor(int nodeIndex) {
   Node current;
   this->readNode(current, nodeIndex);
 
@@ -263,6 +265,8 @@ void Database<T>::calculateFactor(int nodeIndex) {
 
   current.factor = rHeight -lHeight;
   this->writeNode(current, nodeIndex);
+
+  return current.factor;
 }
 
 template <class T>
@@ -279,6 +283,42 @@ int Database<T>::calculateHeight(int nodeIndex) {
     rHeight = calculateHeight(current.right);
 
   return max(lHeight, rHeight) + 1;
+}
+
+template <class T>
+void Database<T>::balance(int nodeIndex) {
+  Node root;
+  this->readNode(root, nodeIndex);
+
+  if (root.factor > 1) {
+    Node right;
+    this->readNode(right, root.right);
+
+    if (right.right == -1)
+      this->rightRotation(root.right);
+    
+    this->leftRotation(nodeIndex);
+  } else if (root.factor < -1) {
+    Node left;
+    this->readNode(left, root.left);
+
+    if (left.left == -1)
+      this->leftRotation(root.left);
+      
+    this->rightRotation(nodeIndex);
+  }
+
+  this->calculateFactor(nodeIndex);
+}
+
+template <class T>
+void Database<T>::leftRotation(int nodeIndex) {
+
+}
+
+template <class T>
+void Database<T>::rightRotation(int nodeIndex) {
+  
 }
 
 template <class T>
