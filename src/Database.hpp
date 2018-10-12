@@ -24,6 +24,8 @@ class Database {
     const char* treeName;
     T* defaultValue;
 
+    void printInOrder(ostream&, int);
+
     int calculateFactor(int);
     int calculateHeight(int);
     void balance(int);

@@ -313,12 +313,38 @@ void Database<T>::balance(int nodeIndex) {
 
 template <class T>
 void Database<T>::leftRotation(int nodeIndex) {
+  Node current;
+  this->readNode(current, nodeIndex);
+  int rightIndex = current.right;
 
+  Node right;
+  this->readNode(right, current.right);
+
+  current.right = right.left;
+  right.left = rightIndex;
+
+  this->writeNode(current, rightIndex);
+  this->writeNode(right, nodeIndex);
+
+  this->calculateFactor(rightIndex);
 }
 
 template <class T>
 void Database<T>::rightRotation(int nodeIndex) {
-  
+  Node current;
+  this->readNode(current, nodeIndex);
+  int leftIndex = current.left;
+
+  Node left;
+  this->readNode(left, current.left);
+
+  current.left = left.right;
+  left.right = leftIndex;
+
+  this->writeNode(current, leftIndex);
+  this->writeNode(left, nodeIndex);
+
+  this->calculateFactor(leftIndex);
 }
 
 template <class T>
@@ -415,6 +441,24 @@ void Database<T>::removeBytes(fstream& file, const char* filename, int firstByte
 }
 
 template <class T>
+void Database<T>::printInOrder(ostream& os, int nodeIndex) {
+  Node current;
+  this->readNode(current, nodeIndex);
+
+  os << "(";
+  if (current.left != -1)
+    this->printInOrder(os, current.left);
+  
+  T data;
+  this->readData(data, current.data);
+  os << data;
+
+  if (current.right != -1)
+    this->printInOrder(os, current.right);
+  os << ")";
+}
+
+template <class T>
 void Database<T>::print(ostream& os) {
   T tmp;
   os << "dataFile:" << endl;
@@ -433,5 +477,11 @@ void Database<T>::print(ostream& os) {
   for (int i = 0; i < dataLength; i++) {
     this->readNode(tmpNode, i);
     os << "  " << tmpNode << endl;
+  }
+
+  if (dataLength > 0) {
+    os << endl;
+    this->printInOrder(os, 0);
+    os << endl;
   }
 }
