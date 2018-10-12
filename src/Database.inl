@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <stack>
 
 template <class T>
 Database<T>::Database(string dataFile, string treeFile, T defaultValue) {
@@ -41,14 +42,18 @@ void Database<T>::insert(T data) {
   this->writeData(data, amount);
   Node n(amount);
 
+  int next = 0;
+  stack<int> nodeStack;
+
   this->treeFile.seekg(0, this->treeFile.end);
   int treeAmount = this->treeFile.tellg() / sizeof(Node);
   if (treeAmount > 0) {
     T tmp;
     Node current;
 
-    int next = 0;
     while (next != -1) {
+      nodeStack.push(next);
+
       this->readNode(current, next);
       this->readData(tmp, current.data);
       
@@ -72,6 +77,12 @@ void Database<T>::insert(T data) {
   }
 
   this->writeNode(n, treeAmount);
+  while (!nodeStack.empty()) {
+    int node = nodeStack.top();
+    nodeStack.pop();
+
+    this->calculateFactor(node);
+  }
 }
 
 template <class T>
@@ -126,14 +137,17 @@ void Database<T>::update(T data) {
 
 template <class T>
 void Database<T>::remove(T data) {
-  this->treeFile.seekg(0, this->treeFile.end);
+  stack<int> nodeStack;
 
+  this->treeFile.seekg(0, this->treeFile.end);
   int next = 0, prev = 0;
   if (this->treeFile.tellg() > 0) {
     T tmp;
     Node current;
 
     while (next != -1) {
+      nodeStack.push(next);
+
       this->readNode(current, next);
       this->readData(tmp, current.data);
       
@@ -224,7 +238,47 @@ void Database<T>::remove(T data) {
         }
       }
     }
+
+    while (!nodeStack.empty()) {
+      int node = nodeStack.top();
+      nodeStack.pop();
+
+      this->calculateFactor(node);
+    }
   }
+}
+
+template <class T>
+void Database<T>::calculateFactor(int nodeIndex) {
+  Node current;
+  this->readNode(current, nodeIndex);
+
+  int lHeight = 0;
+  if (current.left != -1)
+    lHeight = calculateHeight(current.left);
+
+  int rHeight = 0;
+  if (current.right != -1)
+    rHeight = calculateHeight(current.right);
+
+  current.factor = rHeight -lHeight;
+  this->writeNode(current, nodeIndex);
+}
+
+template <class T>
+int Database<T>::calculateHeight(int nodeIndex) {
+  Node current;
+  this->readNode(current, nodeIndex);
+
+  int lHeight = 0;
+  if (current.left != -1)
+    lHeight = calculateHeight(current.left);
+
+  int rHeight = 0;
+  if (current.right != -1)
+    rHeight = calculateHeight(current.right);
+
+  return max(lHeight, rHeight) + 1;
 }
 
 template <class T>
