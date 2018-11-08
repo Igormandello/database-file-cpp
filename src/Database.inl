@@ -205,7 +205,7 @@ void Database<T>::remove(T data) {
           this->removeBytes(this->treeFile, this->treeName, nextBig * sizeof(Node), sizeof(Node));
           this->removeBytes(this->dataFile, this->dataName, removedData * sizeof(T), sizeof(T));
 
-          this->fixIndexes(next, removedData);
+          this->fixIndexes(nextBig, removedData);
         } else {
           int prevSmall = next;
           int nextSmall = current.right;
@@ -235,7 +235,7 @@ void Database<T>::remove(T data) {
           this->removeBytes(this->treeFile, this->treeName, nextSmall * sizeof(Node), sizeof(Node));
           this->removeBytes(this->dataFile, this->dataName, removedData * sizeof(T), sizeof(T));
 
-          this->fixIndexes(next, removedData);
+          this->fixIndexes(nextSmall, removedData);
         }
       }
     }

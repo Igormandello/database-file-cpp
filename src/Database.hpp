@@ -2,6 +2,7 @@
 #define DATABASE_INCLUDED
 
 #include <iostream>
+#include <cstdlib>
 #include "Node.hpp"
 
 using namespace std;
